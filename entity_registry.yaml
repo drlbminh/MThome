@@ -1,0 +1,48 @@
+media_player.audio_engine:
+  name:
+  platform: cast
+  unique_id: 059a179b-7ce2-47fc-8880-3312737900d5
+media_player.bedroom_speaker:
+  name:
+  platform: cast
+  unique_id: ca9ae6f6-aa71-8b38-834b-10bde94fa2e7
+binary_sensor.door_window_sensor_158d0001f3d222:
+  name:
+  platform: xiaomi_aqara
+  unique_id: status158d0001f3d222
+sensor.illumination_7811dcb21afe:
+  name:
+  platform: xiaomi_aqara
+  unique_id: illumination7811dcb21afe
+light.gateway_light_7811dcb21afe:
+  name:
+  platform: xiaomi_aqara
+  unique_id: rgb7811dcb21afe
+binary_sensor.motion_sensor_158d0001b15d8b:
+  name:
+  platform: xiaomi_aqara
+  unique_id: status158d0001b15d8b
+binary_sensor.motion_sensor_158d0001f48d85:
+  name:
+  platform: xiaomi_aqara
+  unique_id: status158d0001f48d85
+binary_sensor.motion_sensor_158d0001b15e4a:
+  name:
+  platform: xiaomi_aqara
+  unique_id: status158d0001b15e4a
+binary_sensor.motion_sensor_158d0001f4a9b6:
+  name:
+  platform: xiaomi_aqara
+  unique_id: status158d0001f4a9b6
+binary_sensor.motion_sensor_158d000223457f:
+  name:
+  platform: xiaomi_aqara
+  unique_id: status158d000223457f
+sensor.illumination_7811dcb7d54a:
+  name:
+  platform: xiaomi_aqara
+  unique_id: illumination7811dcb7d54a
+light.gateway_light_7811dcb7d54a:
+  name:
+  platform: xiaomi_aqara
+  unique_id: rgb7811dcb7d54a

@@ -1,0 +1,1276 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Nhà MT
+  # Location required to calculate the time the sun rises and sets
+  latitude: 21.0333
+  longitude: 105.85
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 0
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Asia/Ho_Chi_Minh
+  # Customization file
+  customize: !include customize.yaml
+  whitelist_external_dirs:
+  - /tmp    
+automation: !include automations.yaml
+# Show links to resources in log and frontend
+introduction:
+homekit:
+# Enables the frontend
+frontend:
+  javascript_version: latest
+
+mqtt:
+  broker: 192.168.9.103
+  port: 1883
+  username: homeassistant
+  password: !secret mqtt_password
+  protocol: 3.1.1
+  
+# Enables configuration UI
+config:
+shell_command:
+  shutdown_z800: 'curl -k http://192.168.9.112:8000/?action=System.Shutdown'
+#  restart_z800: 'curl -u User:user -k http://192.168.9.112:5050/?action=System.Restart'
+#  sleep_z800: 'curl -u User:user -k http://192.168.9.112:5050/?action=System.Sleep'
+  
+http:
+  base_url: minhthanhhome.duckdns.org
+  ssl_certificate: /home/homeassistant/dehydrated/certs/minhthanhhome.duckdns.org/fullchain.pem
+  ssl_key: /home/homeassistant/dehydrated/certs/minhthanhhome.duckdns.org/privkey.pem
+
+  api_password: !secret api_password
+
+
+# Checks for available updates
+# Note: This component will send some information about your system to
+# the developers to assist with development of Home Assistant.
+# For more information, please see:
+# https://home-assistant.io/blog/2016/10/25/explaining-the-updater/
+updater:
+  # Optional, allows Home Assistant developers to focus on popular components.
+  # include_used_components: true
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time
+history:
+
+# View all events in a logbook
+logbook:
+
+# Enables a map showing the location of tracked devices
+map:
+
+# Track the sun
+sun:
+
+# Weather prediction
+ifttt:
+  key: !secret ifttt_key
+
+zone:
+  - name: Home
+    latitude: 10.24570625
+    longitude: 106.375135
+    
+    icon: mdi:home
+  - name: Work
+    latitude: 10.2399084
+    longitude: 106.3674902
+
+    
+    icon: mdi:work
+  - name: Nhà vợ
+    latitude: 10.011966
+    longitude: 105.768320
+
+    
+    icon: mdi:home
+
+panel_custom:
+  - name: floorplan
+    sidebar_title: Floorplan
+    sidebar_icon: mdi:home
+    url_path: floorplan
+    config: !include floorplan.yaml
+# Cloud
+cloud:
+recorder:
+  purge_keep_days: 1
+binary_sensor:
+  
+  - name: Đã ngủ dậy
+    platform: bayesian
+    prior: 0.1
+    probability_threshold: 0.9
+    observations:
+      - entity_id: 'switch.main_light_1'
+        prob_given_true: 0.7
+        
+        platform: 'state'
+        to_state: 'on'
+      - entity_id: 'switch.main_light_2'
+        prob_given_true: 0.7
+        
+        platform: 'state'
+        to_state: 'on'
+      - entity_id: 'sun.sun'
+        prob_given_true: 0.7
+        platform: 'state'
+        to_state: 'above_horizon'
+      - entity_id: 'switch.bathroom_light'
+        prob_given_true: 0.9
+        
+        platform: 'state'
+        to_state: 'on'
+  - platform: template
+    sensors:
+      combine:
+        friendly_name: "Có người ở nhà"
+        device_class: presence
+        value_template: >-
+          {{ is_state('device_tracker.thanh', 'home')
+             or is_state('device_tracker.fcdbb3bdd3a2', 'home')}}
+             
+  
+sensor:
+  - platform: template
+    sensors:
+      dressroom:
+        friendly_name: "Phòng thay đồ" 
+        value_template: >-
+          {% if is_state('binary_sensor.motion_sensor_158d0001b15d8b', 'off') %}
+            Không phát hiện chuyển động
+          {% elif is_state('binary_sensor.motion_sensor_158d0001b15d8b', 'on') %}
+            Có chuyển động
+          {% endif %}
+  - platform: template
+    sensors:
+      toilet:
+        friendly_name: "Nhà vệ sinh" 
+        value_template: >-
+          {% if is_state('binary_sensor.motion_sensor_158d0001f48d85', 'off') %}
+            Không phát hiện chuyển động
+          {% elif is_state('binary_sensor.motion_sensor_158d0001f48d85', 'on') %}
+            Có chuyển động
+          {% endif %}
+  - platform: cpuspeed
+  - platform: mold_indicator
+    indoor_temp_sensor: sensor.broadlink_sensor_temperature
+    indoor_humidity_sensor: sensor.broadlink_sensor_humidity
+    outdoor_temp_sensor: sensor.dark_sky_temperature
+    calibration_factor: 2.0
+  - platform: template
+    sensors:
+      mattroi:
+        friendly_name: "Mặt trời" 
+        value_template: >-
+          {% if is_state('sun.sun', 'above_horizon') %}
+            Chưa lặn
+          {% elif is_state('sun.sun', 'below_horizon') %}
+            Đã lặn
+          {% endif %}
+
+  - platform: template
+    sensors:
+      device1:
+        friendly_name: "Thanh" 
+        value_template: >-
+          {% if is_state('device_tracker.thanh', 'home') %}
+            Đang ở nhà
+          {% elif is_state('device_tracker.thanh', 'not_home') %}
+            Đã ra ngoài
+          {% endif %}
+  - platform: template
+    sensors:
+      device:
+        friendly_name: "Minh" 
+        value_template: >-
+          {% if is_state('device_tracker.fcdbb3bdd3a2', 'home') %}
+            Đang ở nhà
+          {% elif is_state('device_tracker.fcdbb3bdd3a2', 'not_home') %}
+            Đã ra ngoài
+          {% endif %}
+  - platform: mqtt
+    name: test
+    state_topic: "test"
+  - platform: mqtt
+    name: Độ ẩm đất
+    state_topic: "sensor/soil"
+  - platform: template
+    sensors:
+      security:
+        friendly_name: "Chuyển động" 
+        value_template: >-
+          {% if is_state('sensor.test', '1') %}
+            Phát hiện có chuyển động
+          {% elif is_state('sensor.test', '0') %}
+            Không phát hiện chuyển động
+          {% endif %}
+          
+
+  - platform: yr
+  - platform: broadlink
+    update_interval: 2
+    host: 192.168.9.113
+    mac: '34:EA:34:C7:62:30'
+    monitored_conditions:
+      - temperature
+      - humidity
+      - air_quality
+      - light
+      - noise
+  
+  - platform: time_date
+    display_options:
+      - 'time'
+      - 'date'
+  - platform: systemmonitor
+    resources:
+      - type: disk_use_percent
+        arg: /home
+      - type: memory_free
+      - type: memory_use_percent
+      - type: swap_use_percent
+      - type: processor_use
+      - type: network_in
+      - type: network_out
+      - type: last_boot
+  - platform: template
+    sensors:
+      weathertoday:
+        friendly_name: "Thời tiết hôm nay" 
+        value_template: >-
+          {% if is_state('sensor.dark_sky_icon', 'partly-cloudy-day') %}
+            Ngày trời ít mây
+          {% elif is_state('sensor.dark_sky_icon', 'clear-day') %}
+            Ngày trời trong xanh
+          {% elif is_state('sensor.dark_sky_icon', 'clear-night') %}
+            Đêm trời đẹp
+          {% elif is_state('sensor.dark_sky_icon', 'rain') %}
+            Trời mưa
+          {% elif is_state('sensor.dark_sky_icon', 'wind') %}
+            Gió nhiều
+          {% elif is_state('sensor.dark_sky_icon', 'cloudy') %}
+            Trời nhiều mây
+          {% elif is_state('sensor.dark_sky_icon', 'partly-cloudy-night') %}
+            Đêm trời nhiều mây
+          {% elif is_state('sensor.dark_sky_icon', 'fog') %}
+            Sương mù
+          {% elif is_state('sensor.dark_sky_nearest_storm_distance', 'unknown') %}
+            Không có cơn bão nào
+          {% else %}
+            ...
+          {% endif %}
+  - platform: template
+    sensors:
+      chatluongkhongkhi:
+        friendly_name: "Chất lượng không khí" 
+        value_template: >-
+          {% if is_state('sensor.broadlink_sensor_air_quality', '0') %}
+            Không khí trong sạch
+          {% elif is_state('sensor.broadlink_sensor_air_quality', '1') %}
+            Không khí không được sạch
+          {% elif is_state('sensor.broadlink_sensor_air_quality', '2') %}
+            Không khí có hại cho sức khỏe
+          {% endif %}
+        
+  - platform: template
+    sensors:
+      cuongdoanhsang:
+        friendly_name: "Cường độ ánh sáng" 
+        value_template: >-
+          {% if is_state('sensor.broadlink_sensor_light', '0') %}
+            Tối
+          {% elif is_state('sensor.broadlink_sensor_light', '1') %}
+            Thiếu ánh sáng
+          {% elif is_state('sensor.broadlink_sensor_light', '2') %}
+            Đầy đủ ánh sáng
+          {% endif %}
+  - platform: template
+    sensors:
+      tiengon:
+        friendly_name: "Tiếng ồn" 
+        value_template: >-
+          {% if is_state('sensor.broadlink_sensor_noise', '0') %}
+            Yên tĩnh
+          {% elif is_state('sensor.broadlink_sensor_noise', '1') %}
+            Hơi ồn
+          {% elif is_state('sensor.broadlink_sensor_noise', '2') %}
+            Quá ồn gây ảnh hưởng sức khỏe
+          {% endif %}
+
+  - platform: darksky
+    api_key: !secret darksky_key
+    monitored_conditions:
+      - summary
+      - icon
+      - nearest_storm_distance
+      - apparent_temperature
+      - temperature
+      - humidity
+      - pressure
+      - uv_index
+tts:
+  - platform: google
+    cache: true
+    cache_dir: /tmp/tts
+    time_memory: 300
+    language: 'vi'
+
+camera:
+  
+  
+  - platform: mjpeg
+    name: Camera an ninh
+    mjpeg_url: http://192.168.9.103:8081
+  
+  
+  
+  
+  
+  
+  
+  - platform: local_file
+    name: Hình ảnh từ hệ thống an ninh
+    file_path: /tmp/dlink.jpg
+
+#image_processing:
+#  - platform: opencv
+ #   name: Nhận diện gương mặt
+ #   source:
+ #     - entity_id: camera.camera_an_ninh
+group: 
+  default_view:
+    view: yes
+    icon: mdi:home-circle
+    entities:
+      - group.device_tracker
+      
+      - group.aircon
+      - group.light
+      - group.pc
+
+      - group.time
+
+      
+      - automation.tu_dong_bat_den_khi_troi_nong
+      
+      
+      - sensor.test
+      - climate.mitsu
+      - group.speaker
+      - group.camera
+      
+     
+  device_tracker:
+    name: Chủ nhân
+    view: no
+    entities:
+      - sensor.device1
+      - sensor.device
+      - binary_sensor.a_ngu_day
+      - device_tracker.Minh
+      - device_tracker.vo
+      - device_tracker.homeassistant_8acc23f211c841ad9afb99fe317e7202
+  security1:
+    name: An ninh
+    view: yes
+    icon: mdi:cctv
+    entities:
+      
+      - group.security3
+      - group.security2
+  nhac:
+    name: Nhạc
+    view: yes
+    icon: mdi:music
+    entities:
+      - input_text.nhac1
+      - input_text.nhac2
+      - input_text.nhac3
+      - input_text.nhac4
+      - input_text.nhac5
+      - input_text.nhac6
+      - input_text.nhac7
+      - input_text.nhac8
+      - input_text.nhac9
+
+  security3:
+    name: Camera
+    view: no
+    
+    entities:
+      - camera.camera_an_ninh
+      - camera.hinh_anh_tu_he_thong_an_ninh
+
+  security2:
+    name: An ninh
+    view: no
+    
+    entities:
+      - sensor.security
+      - binary_sensor.door_window_sensor_158d0001f3d222
+      - sensor.toilet
+      - sensor.dressroom
+  tree:
+    name: Cây
+    view: yes
+    icon: mdi:tree
+    entities:
+      - switch.tree_pump
+      - sensor.o_am_at
+      - history_graph.cay
+  security:
+    name: Thời gian
+    view: no
+    entities:
+      - switch.camera
+  PC:
+  
+    name: PC
+    view: no
+    entities:
+      - switch.pc
+      - switch.monitor
+      - switch.desk_lamp
+
+  climate:
+    name: Thời tiết bên ngoài
+    view: no
+    entities:
+      - sun.sun
+      - sensor.mattroi
+      - sensor.dark_sky_uv_index
+      - sensor.dark_sky_temperature
+      - sensor.dark_sky_pressure
+      - sensor.dark_sky_humidity
+      - sensor.dark_sky_apparent_temperature
+      - sensor.dark_sky_nearest_storm_distance
+      - sensor.weathertoday
+  system: 
+    name: Hệ thống
+    view: no
+    entities:
+      - sensor.disk_use_percent_home
+      - sensor.last_boot
+      - sensor.memory_free
+      - sensor.memory_use_percent
+      - sensor.network_in
+      - sensor.network_out
+      - sensor.processor_use
+      - sensor.swap_use_percent
+      - sensor.cpu_speed
+      
+  speaker:
+    name: Loa
+    view: no
+    entities:
+      - switch.main_speaker
+      - input_text.trutinh
+      - input_text.soidong
+      - input_text.khongloi
+      - media_player.bedroom_speaker
+      - media_player.audio_engine
+      - script.play_music
+      - script.stop_music
+      - script.phatngaunhien
+      - input_number.amluong
+      
+  time: 
+    name: Thời gian
+    view: no
+    entities:
+      - sensor.date
+      - sensor.time
+  automationtab:
+    name: Cài đặt
+    view: yes
+    icon: mdi:settings-outline
+    entities:
+      - group.camerasetup
+      - group.autosetup
+      - group.cay
+      - group.timesetup
+  timesetup:
+    name: Cài đặt giờ giấc
+    view: no
+    entities:
+      - input_datetime.giodingu
+      - input_datetime.giomonhac
+      - automation.automation_23
+      - automation.automation_24
+      - automation.automation_25
+  timetab:
+    name: Thời gian
+    view: yes
+    icon: mdi:clock-outline
+    entities:
+      - group.time
+  systemtab:
+    name: Hệ thống
+    view: yes
+    icon: mdi:settings
+    entities:
+      - group.system
+  climateout:
+    name: Thời tiết bên ngoài
+    view: yes
+    icon: mdi:weather-cloudy
+    entities:
+      - group.climate
+
+  cay:
+    name: Cài đặt cây
+    view: no
+    entities:
+      - automation.tu_dong_tat_tuoi_cay
+      - automation.tu_dong_tuoi_cay
+      - input_number.doamthap
+      - input_number.doamcao
+
+  camerasetup:
+    name: Cài đặt camera
+    view: no
+    entities:
+      - script.hide_camera
+      - script.show_camera
+
+  autosetup:
+    name: Cài đặt tự động
+    view: no
+    
+    entities:
+
+      - automation.new_automation 
+
+      - automation.tbche_o_quat
+      - automation.tbnhiet_o_may_lanh
+      - automation.thong_bao_chuyen_ong_trong_phong
+
+
+      - automation.xac_nhan_da_ve_mo_den
+      - automation.xac_nhan_da_ve_mo_may_lanh
+      - automation.xac_nhan_ra_khoi_nha_tat_thiet_bi
+      - automation.tu_ong_mo_en_nha_tam_vao_ban_em
+      - automation.tu_ong_tat_en_nha_tam_vao_ban_em
+      - automation.tu_ong_bat_en_phong_thay_o_ban_em
+      - automation.thong_bao_qua_ifttt
+      - automation.tu_ong_cap_nhat_nhiet_o_may_lanh
+  climateroomtab:
+    name: Thông số trong nhà
+    icon: mdi:home
+    view: yes
+    entities:
+      - group.climateroom
+  climateroom:
+    name: Thông số trong nhà
+    view: no
+    entities:
+      - sensor.chatluongkhongkhi
+      - sensor.broadlink_sensor_humidity
+      - sensor.cuongdoanhsang
+      - sensor.tiengon
+      - sensor.broadlink_sensor_temperature
+      - sensor.mold_indicator
+  light:
+    name: Đèn
+    view: no
+    entities:
+      - switch.main_light_1
+      - switch.main_light_2
+      - switch.balcony_light
+      - switch.bathroom_light
+      - switch.dress_room_light
+      - switch.lamp
+      - light.living_room
+      
+
+  aircon:
+    name: Máy lạnh và máy lọc không khí
+    view: no
+    entities:
+      
+      - switch.air_filter
+      - switch.air_maximum
+      - switch.air_conditioner
+      - input_select.nhietdo
+      - input_select.fan
+      - input_select.nhietdo1
+
+switch:
+  - platform: template
+    switches:
+      showhidecamera:
+        value_template: "{{ is_state('sensor.test', '1') }}"
+        turn_on:
+          service: script.turn_on
+          data:
+            entity_id: script.show_camera
+        turn_off:
+          service: script.turn_on
+          data:
+            entity_id: script.hide_camera
+  - platform: broadlink
+    host: 192.168.9.102
+    mac: '78:0F:77:00:AD:AD'
+    timeout: 15
+    switches:
+      air_conditioner:
+        friendly_name: "Air Conditioner"
+        command_on: 'JgBMAnQ2ECcQJxELEAsRCxEmEQsQDBAnECcRCxAnEQsQCxEnECcQCxEnECcRCxALEScQCxELECcRCxALEQsQCxELEQsQDBALEAsRCxAMEAsRCxALEQsQDBALEQsQCxELECcRCxALEQsQDBALESYRJxALEQsQDBAMECYRCxEmEQsQDBALEQsQCxEnECcQDBAnECcRCxAMEAsQDBALESYRJxAnESYRCxALEQsRCxALEQsQCxELEQsQCxELEAsRDA8MEAsRCxALEQsQDBALEQsQCxELEAwQCxELEAsRCxAMEAsRCxALEQsQCxEMEAsQDBALEAsRCxAMEAsRCxALEQsQDBAMEAsQCxELEAwQDBALEAsRCxALEQsRJhELECcRCxALEQsQDBALEQABqXQ1EScQJxELEAsRCxAnEQsQCxEnECcQDBAnEAsRCxEmEScQCxEnECcQDBAMECYRCxAMECcQCxELEQsQCxELEAsRDA8MEAsRCxALEQsQDBALEQsQCxELEAwQCxELECcQDBALEQsQCxELECcRJxALEQsQCxELECcRCxAnEQsQCxELEAwQCxEmEScQCxEnECcQDBALEQsQCxELECcRJhEnECcRCxALEQsQCxELEQsQCxELEAsRCxELEAsRCxALEQsQDBALEQsQCxELEAwQCxELEAsRCxAMEAsRCxALEQsQCxELEQsQCxELEAwQCxAMEAsRCxALEQsQDBALEQsQCxELEAwQCxELEAsRCxALEQsQDBALEQsQJxELECcQDBALEQsQCxELEAANBQAAAAAAAAAAAAAAAA=='
+        command_off: 'JgBMAnQ2ECcRJxALEQsQCxEnEAsRCxAnEScQCxEmEQsQDBAnECcRCxAnESYRCxAMECcQCxELESYRDA8MEAsRCxALEQsQDBALEQsQCxELEAwQDBALEAsRCxALEQsRCxAMEAsQCxELEA0PCxELECcRJhELEAwQCxELECcRCxAnEAwQCxELEAsRCxAnEScQCxEmEScQCxELEAwQCxELECcQJxEnECcQDBAMEAsQDBALEAsRCxELEAsRCxALEQsRCxALEQsQDBALEAwQCxELEAsRCxAMEAsRCxALEQsQCxELEQwPCxELEAsRCxELEAsRCxALEQsQDBAMEAwPCxELEAwQCxELEAsRCxAMEAsRCxAMEAsQDBALEQsQJxAMECcQCxEMECYRJxAnEAABqnQ1EScQJxALEQwQCxAnEAwQCxEmEScRCxAnEAsRCxAnESYRCxEmEScQCxELECcRCxALEScQCxELEAsRDA8MEAsRDA8LEQsQDBALEQsQCxELEAwQCxELEAsRDA8MEAsRCxALEQsQCxELESYRJxALEQsQCxELECcRCxAnEQsQCxELEA0PCxEmEScQCxEnECcRCxAMEAsQCxELECcRJxAnECcRCxALEQsQDBALEQsQCxELEAwQCxELEAsRCxAMEAsQDBALEQsQCxEMDwwQCxELEAsRCxAMEAsRCxALEQsQDBALEQsQCxELEAwQCxELEAsRCxAMEAsQDBALEQsQCxEMDwwQCxELEAsRCxAMEAsRDA8LEQwPJxELECcRCxALEScQJxAnEQANBQAAAAAAAAAAAAAAAA=='
+      
+      air_filter:
+        friendly_name: "Air filter"
+        command_on: 'JgB6AHE0ECgQDQ8NDw0PDQ8NDw0PDQ8NEAwQDBANDycQDQ8NDw0QDBAMEA0PDQ8NDw0PDQ8NDw0PDQ8NDygQDQ8NDygQDQ8nECkPKA8NECcQKBAMECcQKBANDw0PDQ8NDw0PDQ8NDw0QJxAoECcQKBAoDygQKA8AARIQAA0FAAAAAAAAAAAAAAAAAAA='
+        command_off: 'JgB6AHE0ECgQDQ8NDw0PDQ8NDw0PDQ8NEAwQDBANDycQDQ8NDw0QDBAMEA0PDQ8NDw0PDQ8NDw0PDQ8NDygQDQ8NDygQDQ8nECkPKA8NECcQKBAMECcQKBANDw0PDQ8NDw0PDQ8NDw0QJxAoECcQKBAoDygQKA8AARIQAA0FAAAAAAAAAAAAAAAAAAA='
+        
+      
+        
+      air_maximum:
+        friendly_name: "Air Maximum"
+        command_on: 'JgB6AHE0ECgQDBAMEAwQDBAMEAwQDRAMDw0QDBAMECcQDBEMEAwPDRAMEAwPDRAMEAwQDBAMEAwQDBEMECcQDBAMECgQDBAnEScQKBAMECcQKBAMECcQDBEnEAwPKRAMDw0QDBAMECcRDBAnEAwQKBAnECgQJxAAARIQAA0FAAAAAAAAAAAAAAAAAAA='
+        command_off: 'JgB6AHE0ECgQDBAMEAwQDBAMEAwQDRAMDw0QDBAMECcQDBEMEAwPDRAMEAwPDRAMEAwQDBAMEAwQDBEMECcQDBAMECgQDBAnEScQKBAMECcQKBAMECcQDBEnEAwPKRAMDw0QDBAMECcRDBAnEAwQKBAnECgQJxAAARIQAA0FAAAAAAAAAAAAAAAAAAA='
+        
+      
+      
+
+      
+      
+  - platform: broadlink
+    host: 192.168.9.122
+    mac: '34:ea:34:9c:ed:ce'
+    type: spmini2
+
+    friendly_name: 'Desk Lamp'
+
+ 
+  - platform: broadlink
+    host: 192.168.9.115
+    mac: '34:EA:34:D1:03:06'
+    type: mp1
+    
+    scan_interval: 1
+    slots:
+      # friendly name of slots - optional
+      # if not set, slot name will be switch's friendly_name + 'slot {slot_index}'. e.g 'MP1 slot 1'
+      slot_1: 'Main speaker'
+      slot_2: 'Lamp'
+      slot_3: 'Monitor'
+      slot_4: 'Camera'
+
+             
+  - platform: wake_on_lan
+    mac_address: '30:9C:23:0F:15:6E'
+    name: PC
+    host: 192.168.9.112
+    turn_off:
+      service: shell_command.shutdown_z800
+        
+
+    
+
+
+        
+  - platform: mqtt
+    name: Main Light 1
+    command_topic: "relay/mainlight"
+    state_topic: "relay/mainlightstate"
+    payload_on: "0"
+    payload_off: "1"
+    optimistic: false
+    qos: 0
+    retain: true
+  - platform: mqtt
+    name: Main Light 2
+    command_topic: "relay/mainlight1"
+    state_topic: "relay/mainlightstate1"
+    payload_on: "0"
+    payload_off: "1"
+    optimistic: false
+    qos: 0
+    retain: true
+  - platform: mqtt
+    name: Tree Pump 
+    command_topic: "relay/bom2"
+    state_topic: "relay/statebom2"
+    
+    payload_on: "1"
+    payload_off: "0"
+    optimistic: false
+    qos: 0
+    retain: true
+  - platform: mqtt
+    name: Balcony Light
+    command_topic: "relay/balconylight1"
+    state_topic: "relay/balconylightstate1"
+    payload_on: "1"
+    payload_off: "0"
+    optimistic: false
+    qos: 0
+    retain: true
+  - platform: mqtt
+    name: Bathroom Light
+    command_topic: "relay/bathroomlight"
+    state_topic: "relay/bathroomlightstate"
+    payload_on: "1"
+    payload_off: "0"
+    optimistic: false
+    qos: 0
+    retain: true
+  - platform: mqtt
+    name: Dress Room Light
+    command_topic: "relay/dressroomlight1"
+    state_topic: "relay/dressroomlightstate1"
+    payload_on: "1"
+    payload_off: "0"
+    optimistic: false
+    qos: 0
+    retain: true
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+input_datetime:
+  giomonhac:
+    name: Giờ báo thức bằng nhạc
+    has_date: false
+    has_time: true
+  giodingu:
+    name: Giờ đi ngủ
+    has_date: false
+    has_time: true
+input_select:
+
+
+    
+
+  nhietdo:
+    name: Nhiệt độ máy lạnh
+    options:
+     - 18
+     - 19
+     - 20
+     - 21
+     - 22
+     - 23
+     - 24
+     - 25
+     - 26
+     - 27
+     - 28
+     - 29
+     - 30
+    initial: 27
+    icon: mdi:air-conditionner
+  chedo:
+    name: Chế độ phòng
+    options:
+     - "Về nhà"
+     - "Ra khỏi nhà"
+     - "Đi ngủ"
+     - "Rời đi một lúc"
+
+  
+  fan:
+    name: Tốc độ quạt
+    options:
+      - Thấp
+      - Trung bình
+      - Cao
+      - Tự động
+    initial: "Thấp"
+    icon: mdi:fan
+scene:
+  - name: home
+    entities: 
+      input_select.chedo:
+        option: Về nhà
+  - name: leave
+    entities:
+      input_select.chedo:
+        option: Ra khỏi nhà
+  - name: temp_leaving
+    entities: 
+      input_select.chedo:
+        option: Rời đi một lúc
+  - name: sleep
+    entities:
+      input_select.chedo:
+        option: Đi ngủ
+
+
+    
+    
+
+script:
+  hide_camera:
+    sequence: 
+      - service: group.set_visibility
+        entity_id: group.security3
+        data:
+          visible: False
+
+          
+  show_camera:
+    sequence: 
+      - service: group.set_visibility
+        entity_id: group.security3
+        data:
+          visible: True
+  thongbaoandroid:
+    sequence:
+      - service: ifttt.trigger
+        data_template: {"event":"Notifyandroid", "value1":"{{ value1 }}"}
+  thongbaothoitietbuoisang:
+    sequence:
+      - service: tts.google_say
+        entity_id: media_player.back_garden_speaker
+        data_template:
+          message: >-
+           Sau đây là thông báo thời tiết.
+           {% if is_state('sensor.dark_sky_icon', 'partly-cloudy-day') %}
+            Hiện tại trời ít mây.
+           {% elif is_state('sensor.dark_sky_icon', 'clear-day') %}
+            Hôm nay trời đẹp, bạn có thể yên tâm với các hoạt động ngoài trời.
+           {% elif is_state('sensor.dark_sky_icon', 'clear-night') %}
+            Đêm nay trời đẹp.
+           {% elif is_state('sensor.dark_sky_icon', 'rain') %}
+            Khả năng trời mưa rất cao, bạn nên đem theo dù hoặc áo mưa nếu cần di chuyển ra ngoài.
+           {% elif is_state('sensor.dark_sky_icon', 'wind') %}
+            Hôm nay trời nhiều gió, bạn nhớ đóng cửa sổ trước khi đi ra ngoài.
+           {% elif is_state('sensor.dark_sky_icon', 'cloudy') %}
+            Trời nhiều mây, bạn nhớ đem theo dù hoặc áo mưa nếu ra ngoài, đề phòng trời mưa đột ngột.
+           {% elif is_state('sensor.dark_sky_icon','partly-cloudy-night') %}
+            Hiện tại bên ngoài trời nhiều mây.
+           {% elif is_state('sensor.dark_sky_icon', 'fog') %}
+            Hiện tại trời nhiều sương mù.
+           {% endif %}
+            Nhiệt độ bên ngoài hiện là {{states('sensor.dark_sky_apparent_temperature') }} độ xê, độ ẩm là {{states('sensor.dark_sky_humidity')|int }} phần trăm.'
+          
+          language: vi
+  audio_engine_up:
+    sequence:
+      - service: media_player.volume_up
+        entity_id: media_player.audio_engine
+  audio_engine_down:
+    sequence:
+      - service: media_player.volume_down
+        entity_id: media_player.audio_engine
+  audio_engine_mute:
+    sequence:
+      - service: media_player.turn_off
+        entity_id: media_player.audio_engine
+        
+  audio_engine_sleep:
+    sequence:
+      - service: media_player.turn_off
+        entity_id: media_player.audio_engine
+      - service: switch.turn_off
+        entity_id: switch.main_speaker
+        
+  audio_engine_on:
+    sequence:
+      - service: switch.turn_on
+        entity_id: switch.main_speaker
+      - service: media_player.turn_on
+        entity_id: media_player.audio_engine
+  on_pc:
+    sequence:
+      - service: switch.turn_on
+        entity_id: switch.monitor
+      - service: switch.turn_on
+        data:
+          entity_id: switch.pc
+   
+  off_pc:
+    sequence:
+
+      - service: switch.turn_off
+        data:
+          entity_id: switch.pc
+     
+
+          
+      
+     
+
+  
+  room_temperature:
+    sequence:
+      - service: tts.google_say
+        entity_id: media_player.bedroom_speaker
+        data_template:
+          message: " The temperature of your room is {{states('sensor.broadlink_sensor_temperature')}} degree . "
+          language: 'en'
+        
+
+  
+
+       
+  i_am_leaving_for_a_while:
+    sequence:
+      - service: tts.google_say
+        entity_id: media_player.bedroom_speaker
+        data:
+          message: "Tôi sẽ tắt đèn tạm. Khi trở lại bạn cứ gọi tôi " 
+          language: 'vi'
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.mitsu
+          temperature: 28  
+      - service: switch.turn_off
+        data:
+          entity_id: switch.main_light_1
+      - service: switch.turn_off
+        data:
+          entity_id: switch.bathroom_light
+      
+  i_return:
+    sequence:
+      - service: switch.turn_on
+        data:
+          entity_id: switch.main_light
+       
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.mitsu
+          temperature: 27 
+          
+          
+      - service: tts.google_say
+        entity_id: media_player.bedroom_speaker
+        data:
+          message: "tôi đã bật lại đèn cho bạn" 
+          language: 'vi'
+  i_am_home:
+    sequence:
+      - service: switch.broadlink_send_packet_192_168_9_102
+        data:
+          packet:
+            - 'JgBMAnQ2ECcQJxELEAsRCxEmEQsQDBAnECcRCxAnEQsQCxEnECcQCxEnECcRCxALEScQCxELECcRCxALEQsQCxELEQsQDBALEAsRCxAMEAsRCxALEQsQDBALEQsQCxELECcRCxALEQsQDBALESYRJxALEQsQDBAMECYRCxEmEQsQDBALEQsQCxEnECcQDBAnECcRCxAMEAsQDBALESYRJxAnESYRCxALEQsRCxALEQsQCxELEQsQCxELEAsRDA8MEAsRCxALEQsQDBALEQsQCxELEAwQCxELEAsRCxAMEAsRCxALEQsQCxEMEAsQDBALEAsRCxAMEAsRCxALEQsQDBAMEAsQCxELEAwQDBALEAsRCxALEQsRJhELECcRCxALEQsQDBALEQABqXQ1EScQJxELEAsRCxAnEQsQCxEnECcQDBAnEAsRCxEmEScQCxEnECcQDBAMECYRCxAMECcQCxELEQsQCxELEAsRDA8MEAsRCxALEQsQDBALEQsQCxELEAwQCxELECcQDBALEQsQCxELECcRJxALEQsQCxELECcRCxAnEQsQCxELEAwQCxEmEScQCxEnECcQDBALEQsQCxELECcRJhEnECcRCxALEQsQCxELEQsQCxELEAsRCxELEAsRCxALEQsQDBALEQsQCxELEAwQCxELEAsRCxAMEAsRCxALEQsQCxELEQsQCxELEAwQCxAMEAsRCxALEQsQDBALEQsQCxELEAwQCxELEAsRCxALEQsQDBALEQsQJxELECcQDBALEQsQCxELEAANBQAAAAAAAAAAAAAAAA=='  
+      - service: switch.turn_on
+        data:
+          entity_id: switch.air_conditioner
+      - service: switch.turn_on
+        data:
+          entity_id: switch.air_filter
+      - service: switch.turn_on
+        data:
+          entity_id: switch.main_light_1
+      - service: switch.turn_on
+        data:
+          entity_id: switch.main_light_2
+            
+            
+      - service: switch.turn_on
+        data:
+          entity_id: switch.monitor
+      - service: switch.turn_on
+        data:
+          entity_id: switch.pc
+
+
+  i_am_leaving:
+    sequence:
+      - service: switch.turn_off
+        data:
+          entity_id: switch.air_conditioner
+      - service: switch.broadlink_send_packet_192_168_9_102
+        data:
+          packet:
+            - 'JgBMAnQ2ECcRJxALEQsQCxEnEAsRCxAnEScQCxEmEQsQDBAnECcRCxAnESYRCxAMECcQCxELESYRDA8MEAsRCxALEQsQDBALEQsQCxELEAwQDBALEAsRCxALEQsRCxAMEAsQCxELEA0PCxELECcRJhELEAwQCxELECcRCxAnEAwQCxELEAsRCxAnEScQCxEmEScQCxELEAwQCxELECcQJxEnECcQDBAMEAsQDBALEAsRCxELEAsRCxALEQsRCxALEQsQDBALEAwQCxELEAsRCxAMEAsRCxALEQsQCxELEQwPCxELEAsRCxELEAsRCxALEQsQDBAMEAwPCxELEAwQCxELEAsRCxAMEAsRCxAMEAsQDBALEQsQJxAMECcQCxEMECYRJxAnEAABqnQ1EScQJxALEQwQCxAnEAwQCxEmEScRCxAnEAsRCxAnESYRCxEmEScQCxELECcRCxALEScQCxELEAsRDA8MEAsRDA8LEQsQDBALEQsQCxELEAwQCxELEAsRDA8MEAsRCxALEQsQCxELESYRJxALEQsQCxELECcRCxAnEQsQCxELEA0PCxEmEScQCxEnECcRCxAMEAsQCxELECcRJxAnECcRCxALEQsQDBALEQsQCxELEAwQCxELEAsRCxAMEAsQDBALEQsQCxEMDwwQCxELEAsRCxAMEAsRCxALEQsQDBALEQsQCxELEAwQCxELEAsRCxAMEAsQDBALEQsQCxEMDwwQCxELEAsRCxAMEAsRDA8LEQwPJxELECcRCxALEScQJxAnEQANBQAAAAAAAAAAAAAAAA=='
+
+
+                
+          
+      - service: switch.turn_off
+        data:
+          entity_id: switch.pc
+         
+
+
+          
+      - service: switch.turn_off
+        data:
+          entity_id: switch.air_filter
+          
+      - service: switch.turn_off
+        data:
+          entity_id: switch.main_light_1
+      - service: switch.turn_off
+        data:
+          entity_id: switch.main_light_2
+          
+      - service: switch.turn_off
+        data:
+          entity_id: switch.bathroom_light
+      - service: switch.turn_off
+        data:
+          entity_id: switch.dress_room_light
+          
+
+          
+
+          
+  change_air_filter_mode:
+    sequence:
+      - service: switch.broadlink_send_packet_192_168_9_102
+        data:
+          packet:
+            - 'JgB6AHA0ECgQDQ8NDw0PDQ8NDw0PDQ8NDw0QDBANDycQDQ8NDw0QDBAMEA0PDQ8NDw0PDQ8NDw0PDQ8NDygQDQ8NDygQDQ8oDygQJxAMESgPKBANDycQDQ8NDykPDQ8NDw0PDQ8NDygQKA8NECcQKBAnECgQKA8AARIQAA0FAAAAAAAAAAAAAAAAAAA='
+  toilet_on:
+    sequence:
+      - service: switch.broadlink_send_packet_192_168_9_102
+        data:
+          packet:
+            - 'eAsyAA8IBRIQBwUSDwgFEg8HEAcPBwQSDwgFEg8IBRMEEwQSBBMPCA8HBRIFEgWqBBIPBxAHAAAAAAAA'
+      
+        
+            
+  go_to_sleep:
+    sequence:
+      - delay: 00:01:00
+      - service: switch.turn_off
+        data:
+          entity_id: switch.main_light_1
+      - service: switch.turn_off
+        data:
+          entity_id: switch.main_light_2
+      - service: switch.turn_on
+        entity_id: switch.lamp
+      - service: climate.set_temperature
+        data:
+          entity_id: climate.mitsu
+          temperature: 28
+      - service: switch.turn_off
+        data:
+          entity_id: switch.pc
+  mainlight_off:
+    sequence:
+      - service: switch.turn_off
+        entity_id: switch.main_light_1
+      - service: switch.turn_off
+        entity_id: switch.main_light_2
+  mainlight_on:
+    sequence:
+      - service: switch.turn_on
+        entity_id: switch.main_light_1
+      - service: switch.turn_on
+        entity_id: switch.main_light_2
+
+
+  play_music:
+    sequence:
+      - service: switch.turn_on
+        entity_id: switch.main_speaker
+#      - service: media_player.play_media
+#        data:
+#          entity_id: media_player.audio_engine
+#          media_content_id: "https://minhthanhhome.duckdns.org/local/test.mp3"
+#          media_content_type: 'audio/mp3'
+      
+      
+      
+      - service: media_extractor.play_media
+        entity_id: media_player.audio_engine
+        data_template:
+          media_content_id: "{{states('input_text.khongloi')}}"
+          media_content_type: "music"
+          
+
+  stop_music:
+    sequence:
+      - service: media_player.media_stop
+        entity_id: media_player.audio_engine
+      - service: switch.turn_off
+        entity_id: switch.main_speaker
+        
+
+  phatngaunhien:
+    sequence:
+      - service: media_extractor.play_media
+        entity_id: media_player.audio_engine
+        data_template:
+          media_content_id: >-
+            {{[states('input_text.nhac1'),
+               states('input_text.nhac2'),
+               states('input_text.nhac3'),
+               states('input_text.nhac4'),
+               states('input_text.nhac5'),
+               states('input_text.nhac6'),
+               states('input_text.nhac7'),
+               states('input_text.nhac8'),
+               states('input_text.nhac9')]| random}}
+               
+
+            
+          media_content_type: "music"
+    
+
+climate:
+  - platform: broadlink
+    name: Mitsu
+    host: 192.168.9.102
+    mac: '78:0F:77:00:AD:AD'
+    ircodes_ini: 'broadlink_climate_codes/mitsubishi_electric.ini'
+    min_temp: 16
+    max_temp: 30
+    target_temp: 27
+    temp_sensor: sensor.broadlink_sensor_temperature
+    default_operation_from_idle: cool
+    default_operation: cool
+    default_fan_mode: mid
+    customize:
+      operations:
+        - idle
+        - cool
+        
+      fan_modes:
+        - low
+        - mid
+        - high
+timer:
+  kiemtradarakhoinha:
+    duration: 40
+  kiemtradavenha:
+    duration: 10
+    
+  kiemtramanhinh:
+    duration: 60
+
+device_tracker:
+  
+  
+  - platform: nmap_tracker
+    hosts: 
+      - 192.168.9.128
+      - 192.168.9.105
+
+    track_new_devices: yes
+    interval_seconds: 60
+    consider_home: 300
+    
+    exclude:
+     - 192.168.9.103
+    
+  
+  - platform: ping
+    hosts:
+      Minh : 192.168.9.128
+      Vo: 192.168.9.105
+    interval_seconds: 10
+    consider_home: 300
+    track_new_devices: yes
+  
+  
+  
+  
+  - platform: owntracks
+    max_gps_accuracy: 200
+
+    
+    
+xiaomi_aqara:
+
+  discovery_retry: 3
+  gateways:
+    - mac: 7811dcb21afe
+      key: cp6l06pn609pihx2
+
+    - mac: 7811dcb7d54a
+      key: 9dmq58xxelz6wcqq
+
+
+light:
+  - platform: yeelight
+    devices:
+      192.168.9.100:
+        name: Living Room
+
+     
+notify:
+  - name: Thong_bao
+    platform: html5
+    gcm_api_key: 'AAAA4Dfg5vM:APA91bFGocARNHlqqRxmp40ymItJ1FCEEywyQlZmLcToPXKT4JJHdksuvy7vUBeCG_GfsBT7CVnd8J_N10Y_4Y7lK5WOdr2MElX0Bin0afENahT_AwCXR7oQQpq-YXReSLJCpxNNDvka'
+    gcm_sender_id: '963010160371'
+    
+    
+input_number:
+  doamthap:
+    name: beginpump
+    initial: 50
+    min: 0
+    max: 90
+    step: 1
+    
+  doamcao:
+    name: stoppump
+    initial: 50
+    min: 0
+    max: 100
+    step: 1
+  amluong:
+    name: amluong
+    initial: 50
+    min: 0
+    max: 100
+    step: 1
+history_graph:
+  cay:
+    entities:
+      - sensor.o_am_at
+      - switch.tree_pump
+      
+media_extractor:
+
+input_text:
+  trutinh:
+    name: Link nhạc trữ tình
+    initial: Paste link nhạc
+  soidong:
+    name: Link nhạc sôi động
+    initial: Paste link nhạc
+  khongloi:
+    name: Link nhạc không lời
+    initial: Paste link nhạc
+  nhac1:
+    name: Link 1
+     
+  nhac2:
+    name: Link 2
+    
+  nhac3:
+    name: Link 3
+     
+  nhac4:
+    name: Link 4
+  nhac5:
+    name: Link 5
+     
+  nhac6:
+    name: Link 6
+  nhac7:
+    name: Link 7
+     
+  nhac8:
+    name: Link 8
+  nhac9:
+    name: Link 9
+     
+  nhac10:
+    name: Link 10

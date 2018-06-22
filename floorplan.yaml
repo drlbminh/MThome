@@ -1,0 +1,128 @@
+      name: Demo Floorplan
+      image: /local/custom_ui/floorplan/floorplan.svg
+      stylesheet: /local/custom_ui/floorplan/floorplan.css
+      
+      # These options are optional
+      # warnings:                  # enable warnings (to find out why things might ot be working correctly)
+      # pan_zoom:                  # enable experimental panning / zooming
+      hide_app_toolbar:          # hide the application toolbar (when used as a custom panel)
+      # date_format: DD-MMM-YYYY   # Date format to use in hover-over text
+      
+      last_motion_entity: sensor.template_last_motion
+      last_motion_class: last-motion
+
+      groups:
+
+        - name: Sensors
+          entities:
+             - sensor.broadlink_sensor_temperature
+             - sensor.broadlink_sensor_light
+             - sensor.broadlink_sensor_air_quality
+             - sensor.broadlink_sensor_humidity
+          #text_template: '${entity.state ? entity.state : "unknown"}'
+          # An example of rounding up a number, i.e. a temperature of 90.1 becomes 91
+          
+          
+
+
+
+        - name: Switches
+          entities:
+             
+             - switch.pc
+          states:
+            - state: 'on'
+              class: 'switch-on'
+            - state: 'off'
+              class: 'switch-off'
+            
+        - name: light
+          entities:
+             
+             - light.living_room
+          states:
+            - state: 'on'
+              class: 'switch-on'
+            - state: 'off'
+              class: 'switch-off'
+        - name: Switches
+          entities:
+             
+             - switch.lamp
+           
+             - switch.camera
+             - switch.main_light
+             - switch.bathroom_light
+          states:
+            - state: 'on'
+              class: 'switch-on'
+            - state: 'off'
+              class: 'switch-off'
+          action:
+            domain: switch   # This optional parameter allows you to use other services such as homeassistant.toggle like here.
+            service: toggle
+        - name: monitor
+          entities:
+             - switch.monitor
+             - switch.air_conditioner
+          states:
+            - state: 'on'
+              class: 'switch-on'
+            - state: 'off'
+              class: 'switchmonitor-off'
+          action:
+            domain: switch   # This optional parameter allows you to use other services such as homeassistant.toggle like here.
+            service: toggle
+        
+        - name: speaker
+          entities:
+             - switch.main_speaker
+          states:
+            - state: 'on'
+              class: 'switchspeaker-on'
+            - state: 'off'
+              class: 'switchspeaker-off'
+          action:
+            domain: switch   # This optional parameter allows you to use other services such as homeassistant.toggle like here.
+            service: toggle
+        
+        
+        
+        - name: airfilter
+          entities:
+             - switch.air_filter
+          states:
+            - state: 'on'
+              class: 'switchspeaker-on'
+            - state: 'off'
+              class: 'switchspeaker-off'
+          action:
+            domain: switch   # This optional parameter allows you to use other services such as homeassistant.toggle like here.
+            service: toggle 
+
+
+
+
+        - name: Cameras
+          entities:
+            - camera.camera
+          states:
+            - state: 'idle'
+              class: 'camera-idle'
+              
+#        - name: thermostat_temp
+#          entities:
+#            - climate.downstairs
+#            - climate.upstairs
+#          text_template: '${entity.attributes.current_temperature ? entity.attributes.current_temperature : "undefined"}'
+#
+# The above text_template uses extended attributes from the climate.* objects to get current temperature.
+
+#        - name: text_states
+#          entities:
+#            - sensor.downstairs_thermostat_humidity
+#            - sensor.dark_sky_temperature
+#            - sensor.last_message
+#          text_template: '${entity.state ? entity.state.replace(/\s{2,}/g,"") : "undefined"}'
+#
+# The above text_template uses jQuery syntax to search and replace any instance of 2 consecutive (or more) spaces in a string of text.
