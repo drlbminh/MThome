@@ -46,3 +46,15 @@ light.gateway_light_7811dcb7d54a:
   name:
   platform: xiaomi_aqara
   unique_id: rgb7811dcb7d54a
+binary_sensor.door_window_sensor_158d0001f3453f:
+  name:
+  platform: xiaomi_aqara
+  unique_id: status158d0001f3453f
+media_player.apple_tv:
+  name:
+  platform: apple_tv
+  unique_id: 3c7a973b358fa1d487544d249fa36dde4a58f2cdd7d660598259a836dde57f29
+remote.apple_tv:
+  name:
+  platform: apple_tv
+  unique_id: 3c7a973b358fa1d487544d249fa36dde4a58f2cdd7d660598259a836dde57f29

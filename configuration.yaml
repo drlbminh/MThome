@@ -26,7 +26,9 @@ mqtt:
   broker: 192.168.9.103
   port: 1883
   username: homeassistant
-  password: !secret mqtt_password
+  # password 
+  password: !secret mqtt_password    
+  # password
   protocol: 3.1.1
   
 # Enables configuration UI
@@ -103,7 +105,15 @@ panel_custom:
 # Cloud
 cloud:
 recorder:
+ 
   purge_keep_days: 1
+  include:
+    domains:
+      - sensor
+      - switch
+      - media_player
+      - light
+
 binary_sensor:
   
   - name: Đã ngủ dậy
@@ -132,15 +142,72 @@ binary_sensor:
         to_state: 'on'
   - platform: template
     sensors:
-      combine:
-        friendly_name: "Có người ở nhà"
+      minhcombine:
+        friendly_name: "Minh"
         device_class: presence
         value_template: >-
-          {{ is_state('device_tracker.thanh', 'home')
-             or is_state('device_tracker.fcdbb3bdd3a2', 'home')}}
-             
+          {{ is_state('device_tracker.minh', 'home')
+             or is_state('device_tracker.homeassistant_25f1b431a7324dfbaab5efcff36de7ec', 'home') or is_state('device_tracker.90b0ed098564', 'home')}}
+  - platform: template
+    sensors:
+      thanhcombine:
+        friendly_name: "Thanh"
+        device_class: presence
+        value_template: >-
+          {{ is_state('device_tracker.thanh', 'home') or is_state('device_tracker.vo', 'home')}}
   
 sensor:
+  - platform: template
+    sensors:
+      livingroom:
+        friendly_name: "Cửa phòng khách" 
+        value_template: >-
+          {% if is_state('binary_sensor.motion_sensor_158d0001b15e4a', 'off') %}
+            Không phát hiện chuyển động
+          {% elif is_state('binary_sensor.motion_sensor_158d0001b15e4a', 'on') %}
+            Có chuyển động
+          {% endif %}
+  - platform: template
+    sensors:
+      irongate:
+        friendly_name: "Cửa sắt" 
+        value_template: >-
+          {% if is_state('binary_sensor.motion_sensor_158d0001f4a9b6', 'off') %}
+            Không phát hiện chuyển động
+          {% elif is_state('binary_sensor.motion_sensor_158d0001f4a9b6', 'on') %}
+            Có chuyển động
+          {% endif %}
+  - platform: template
+    sensors:
+      cuacuon:
+        friendly_name: "Cửa cuốn" 
+        value_template: >-
+          {% if is_state('binary_sensor.motion_sensor_158d000223457f', 'off') %}
+            Không phát hiện chuyển động
+          {% elif is_state('binary_sensor.motion_sensor_158d000223457f', 'on') %}
+            Có chuyển động
+          {% endif %}
+  - platform: template
+    sensors:
+      cuamt:
+        friendly_name: "Cửa phòng MT" 
+        value_template: >-
+          {% if is_state('binary_sensor.door_window_sensor_158d0001f3d222', 'off') %}
+            Cửa đóng
+          {% elif is_state('binary_sensor.door_window_sensor_158d0001f3d222', 'on') %}
+            Cửa mở
+          {% endif %}
+          
+  - platform: template
+    sensors:
+      cuaphongthaydo:
+        friendly_name: "Cửa phòng thay đồ" 
+        value_template: >-
+          {% if is_state('binary_sensor.door_window_sensor_158d0001f3453f', 'off') %}
+            Cửa đóng
+          {% elif is_state('binary_sensor.door_window_sensor_158d0001f3453f', 'on') %}
+            Cửa mở
+          {% endif %}
   - platform: template
     sensors:
       dressroom:
@@ -359,27 +426,33 @@ group:
       - group.pc
 
       - group.time
-
+      - group.water
       
       - automation.tu_dong_bat_den_khi_troi_nong
       
       
       - sensor.test
       - climate.mitsu
+      - climate.study
       - group.speaker
       - group.camera
-      
-     
+
+      - sensor.echo
+      - sensor.echo_1
+   
+  water:
+    name: Đun nước
+    view: no
+    entities:
+      - switch.boil
   device_tracker:
     name: Chủ nhân
     view: no
     entities:
-      - sensor.device1
-      - sensor.device
+      - binary_sensor.minhcombine
+      - binary_sensor.thanhcombine
       - binary_sensor.a_ngu_day
-      - device_tracker.Minh
-      - device_tracker.vo
-      - device_tracker.homeassistant_8acc23f211c841ad9afb99fe317e7202
+      
   security1:
     name: An ninh
     view: yes
@@ -417,9 +490,13 @@ group:
     
     entities:
       - sensor.security
-      - binary_sensor.door_window_sensor_158d0001f3d222
+      - sensor.cuamt
+      - sensor.cuaphongthaydo
       - sensor.toilet
       - sensor.dressroom
+      - sensor.livingroom
+      - sensor.irongate
+      - sensor.cuacuon
   tree:
     name: Cây
     view: yes
@@ -474,12 +551,14 @@ group:
     view: no
     entities:
       - switch.main_speaker
+      - switch.loa_harman
       - input_text.trutinh
       - input_text.soidong
       - input_text.khongloi
       - media_player.bedroom_speaker
       - media_player.audio_engine
       - script.play_music
+      - script.pause_music
       - script.stop_music
       - script.phatngaunhien
       - input_number.amluong
@@ -606,18 +685,7 @@ group:
       - input_select.nhietdo1
 
 switch:
-  - platform: template
-    switches:
-      showhidecamera:
-        value_template: "{{ is_state('sensor.test', '1') }}"
-        turn_on:
-          service: script.turn_on
-          data:
-            entity_id: script.show_camera
-        turn_off:
-          service: script.turn_on
-          data:
-            entity_id: script.hide_camera
+
   - platform: broadlink
     host: 192.168.9.102
     mac: '78:0F:77:00:AD:AD'
@@ -649,16 +717,26 @@ switch:
     host: 192.168.9.122
     mac: '34:ea:34:9c:ed:ce'
     type: spmini2
-
     friendly_name: 'Desk Lamp'
 
- 
+  - platform: broadlink
+    host: 192.168.9.101
+    mac: '78:0F:77:01:A3:24'
+    type: spmini2
+    friendly_name: 'Boil'
+  
+  - platform: broadlink
+    host: 192.168.9.133
+    mac: '78:0F:77:01:B3:A9'
+    type: spmini2
+    friendly_name: 'Loa_Harman'
+  
   - platform: broadlink
     host: 192.168.9.115
     mac: '34:EA:34:D1:03:06'
     type: mp1
     
-    scan_interval: 1
+    scan_interval: 3
     slots:
       # friendly name of slots - optional
       # if not set, slot name will be switch's friendly_name + 'slot {slot_index}'. e.g 'MP1 slot 1'
@@ -775,7 +853,7 @@ input_select:
      - 28
      - 29
      - 30
-    initial: 27
+    
     icon: mdi:air-conditionner
   chedo:
     name: Chế độ phòng
@@ -793,7 +871,7 @@ input_select:
       - Trung bình
       - Cao
       - Tự động
-    initial: "Thấp"
+    
     icon: mdi:fan
 scene:
   - name: home
@@ -1092,7 +1170,10 @@ script:
           media_content_id: "{{states('input_text.khongloi')}}"
           media_content_type: "music"
           
-
+  pause_music:
+    sequence:
+      - service: media_player.media_pause
+        entity_id: media_player.audio_engine
   stop_music:
     sequence:
       - service: media_player.media_stop
@@ -1144,6 +1225,29 @@ climate:
         - low
         - mid
         - high
+        
+  - platform: mqtt
+    name: Study
+    modes:
+      - off
+      - cool
+      - fan_only
+    swing_modes:
+      - on
+      - off
+    fan_modes:
+      - high
+      - medium
+      - low
+      - auto
+    retain: true
+    power_command_topic: "study/ac/power/set"
+    mode_command_topic: "study/ac/mode/set"
+    temperature_command_topic: "study/ac/temperature/set"
+    temperature_state_topic: "study/ac/temperature/state"
+    fan_mode_command_topic: "study/ac/fan/set"
+    fan_mode_state_topic: "study/ac/fan/state"
+    swing_mode_command_topic: "study/ac/swing/set"
 timer:
   kiemtradarakhoinha:
     duration: 40
@@ -1173,7 +1277,7 @@ device_tracker:
     hosts:
       Minh : 192.168.9.128
       Vo: 192.168.9.105
-    interval_seconds: 10
+    interval_seconds: 60
     consider_home: 300
     track_new_devices: yes
   
@@ -1186,16 +1290,18 @@ device_tracker:
     
     
 xiaomi_aqara:
-
-  discovery_retry: 3
+  
+  
+  discovery_retry: 5
   gateways:
+    - mac: 7811dcb7d54a
+      key: 2cdb20dbe833419e
+      host: 192.168.9.119
     - mac: 7811dcb21afe
       key: cp6l06pn609pihx2
+      host: 192.168.9.124
 
-    - mac: 7811dcb7d54a
-      key: 9dmq58xxelz6wcqq
-
-
+  
 light:
   - platform: yeelight
     devices:
@@ -1210,23 +1316,24 @@ notify:
     gcm_sender_id: '963010160371'
     
     
+
 input_number:
   doamthap:
     name: beginpump
-    initial: 50
+    
     min: 0
     max: 90
     step: 1
     
   doamcao:
     name: stoppump
-    initial: 50
+    
     min: 0
     max: 100
     step: 1
   amluong:
     name: amluong
-    initial: 50
+    
     min: 0
     max: 100
     step: 1
@@ -1241,13 +1348,13 @@ media_extractor:
 input_text:
   trutinh:
     name: Link nhạc trữ tình
-    initial: Paste link nhạc
+    
   soidong:
     name: Link nhạc sôi động
-    initial: Paste link nhạc
+    
   khongloi:
     name: Link nhạc không lời
-    initial: Paste link nhạc
+    
   nhac1:
     name: Link 1
      
@@ -1274,3 +1381,4 @@ input_text:
      
   nhac10:
     name: Link 10
+    

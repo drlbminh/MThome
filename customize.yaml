@@ -33,6 +33,7 @@ binary_sensor.door_window_sensor_158d0001f3d222:
   friendly_name: Cửa Phòng
 binary_sensor.motion_sensor_158d0001f48d85:
   friendly_name: Nhà vệ sinh
+  icon: mdi:walk
 binary_sensor.door_window_sensor_158d0001f3453f:
   friendly_name: Phòng cá nhân
 binary_sensor.motion_sensor_158d0001b15d8b:
@@ -198,23 +199,51 @@ history_graph.cay:
   friendly_name: Biểu đồ bơm và độ ẩm
 script.stop_music:
   friendly_name: Dừng phát
+  icon: mdi:stop
 script.play_music:
   friendly_name: Phát nhạc
+  icon: mdi:play
 input_text.khongloi:
-  icon: mdi:text-subject
+  icon: mdi:playlist-play
 input_text.soidong:
-  icon: mdi:text-subject
+  icon: mdi:playlist-play
 input_text.trutinh:
-  icon: mdi:text-subject
+  icon: mdi:playlist-play
 input_number.amluong:
   friendly_name: Âm lượng
   icon: mdi:volume-high
   unit_of_measurement: '%'
 script.phatngaunhien:
   friendly_name: Phát ngẫu nhiên
+  icon: mdi:shuffle-variant
 automation.automation_23:
   friendly_name: Tự động mở nhạc khi thức dậy
 automation.automation_24:
   friendly_name: Tự động thông báo khi còn 15 phút đến giờ ngủ
 automation.automation_25:
   friendly_name: Tự động chuyển chế độ đi ngủ
+sensor.toilet:
+  icon: mdi:walk
+sensor.dressroom:
+  icon: mdi:walk
+sensor.security:
+  icon: mdi:walk
+sensor.cuamt:
+  icon: mdi:door
+sensor.livingroom:
+  icon: mdi:walk
+sensor.cuaphongthaydo:
+  icon: mdi:door
+sensor.irongate:
+  icon: mdi:walk
+sensor.cuacuon:
+  icon: mdi:walk
+switch.boil:
+  friendly_name: Đun nước
+  icon: mdi:cup-water
+switch.loa_harman:
+  friendly_name: Loa Harman
+  icon: mdi:speaker
+script.pause_music:
+  friendly_name: Tạm dừng phát
+  icon: mdi:pause

@@ -401,8 +401,8 @@
   - service: tts.google_say
     entity_id: media_player.bedroom_speaker
     data:
-      message: Prepare for sleep time, my boss. I will change
-        MT home to sleep mode in 15 minutes
+      message: Prepare for sleep time, my boss. I will change MT home to sleep mode
+        in 15 minutes
       language: en
   id: b6ee783634174a14a2bcb27778590300
 - trigger:
@@ -413,8 +413,8 @@
   - service: tts.google_say
     entity_id: media_player.bedroom_speaker
     data:
-      message: Please go to bed right now, my boss.  I will wake
-        you up tomorrow. Have a good night.
+      message: Please go to bed right now, my boss.  I will wake you up tomorrow.
+        Have a good night.
       language: en
   - service: switch.turn_on
     entity_id: switch.main_speaker
@@ -430,17 +430,53 @@
   - service: script.turn_on
     entity_id: script.go_to_sleep
   id: fbb7cc292b6d4e3793aeadbadd90ba07
-- id: '1529384058906'
-  alias: tu dong chao
+- id: '1529845679677'
+  alias: Của mở bên trong
   trigger:
   - entity_id: binary_sensor.door_window_sensor_158d0001f3d222
     from: 'off'
     platform: state
     to: 'on'
-  condition: []
+  condition:
+  - condition: state
+    entity_id: sensor.echo_1
+    state: '1'
+  - condition: state
+    entity_id: sensor.echo
+    state: '0'
   action:
   - service: tts.google_say
     entity_id: media_player.bedroom_speaker
     data:
-      message: "Don't forget to close the door,please"
-      language: 'en'
+      message: Tạm biệt
+      language: vi
+- id: '1529845748295'
+  alias: của mở bên ngoài
+  trigger:
+  - entity_id: binary_sensor.door_window_sensor_158d0001f3d222
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: sensor.echo
+    state: '1'
+  - condition: state
+    entity_id: sensor.echo_1
+    state: '0'
+  action:
+  - service: tts.google_say
+    entity_id: media_player.bedroom_speaker
+    data:
+      message: Xin chào vào phòng
+      language: vi
+- id: '1530283394933'
+  alias: Tự động tắt loa
+  trigger:
+  - entity_id: media_player.audio_engine
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - service: switch.turn_off
+    entity_id: switch.main_speaker
