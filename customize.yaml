@@ -247,3 +247,11 @@ switch.loa_harman:
 script.pause_music:
   friendly_name: Tạm dừng phát
   icon: mdi:pause
+automation.thong_bao_chuyen_donmg:
+  friendly_name: Thông báo khi có chuyển động tầng dưới
+automation.thong_bao_minh_ve_nha:
+  friendly_name: Thông báo boss về nhà
+  icon: mdi:home
+automation.thong_bao_vi_tri_minh:
+  friendly_name: Thông báo boss ra khỏi nhà
+  icon: mdi:car

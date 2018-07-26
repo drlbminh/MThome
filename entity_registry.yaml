@@ -1,60 +1,95 @@
 media_player.audio_engine:
+  config_entry_id:
   name:
   platform: cast
   unique_id: 059a179b-7ce2-47fc-8880-3312737900d5
 media_player.bedroom_speaker:
+  config_entry_id:
   name:
   platform: cast
   unique_id: ca9ae6f6-aa71-8b38-834b-10bde94fa2e7
 binary_sensor.door_window_sensor_158d0001f3d222:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: status158d0001f3d222
 sensor.illumination_7811dcb21afe:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: illumination7811dcb21afe
 light.gateway_light_7811dcb21afe:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: rgb7811dcb21afe
 binary_sensor.motion_sensor_158d0001b15d8b:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: status158d0001b15d8b
 binary_sensor.motion_sensor_158d0001f48d85:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: status158d0001f48d85
 binary_sensor.motion_sensor_158d0001b15e4a:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: status158d0001b15e4a
 binary_sensor.motion_sensor_158d0001f4a9b6:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: status158d0001f4a9b6
 binary_sensor.motion_sensor_158d000223457f:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: status158d000223457f
 sensor.illumination_7811dcb7d54a:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: illumination7811dcb7d54a
 light.gateway_light_7811dcb7d54a:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: rgb7811dcb7d54a
 binary_sensor.door_window_sensor_158d0001f3453f:
+  config_entry_id:
   name:
   platform: xiaomi_aqara
   unique_id: status158d0001f3453f
 media_player.apple_tv:
+  config_entry_id:
   name:
   platform: apple_tv
   unique_id: 3c7a973b358fa1d487544d249fa36dde4a58f2cdd7d660598259a836dde57f29
 remote.apple_tv:
+  config_entry_id:
   name:
   platform: apple_tv
   unique_id: 3c7a973b358fa1d487544d249fa36dde4a58f2cdd7d660598259a836dde57f29
+media_player.apple_tv_2:
+  config_entry_id:
+  name:
+  platform: apple_tv
+  unique_id: 597e09ad192e401931931802a0b9ed31c5df37c1100c22869ced81fda48cf989
+remote.apple_tv_2:
+  config_entry_id:
+  name:
+  platform: apple_tv
+  unique_id: 597e09ad192e401931931802a0b9ed31c5df37c1100c22869ced81fda48cf989
+sensor.iphone_cua_minh_battery_level:
+  config_entry_id:
+  name:
+  platform: ios
+  unique_id: level_Minh6splus
+sensor.iphone_cua_minh_battery_state:
+  config_entry_id:
+  name:
+  platform: ios
+  unique_id: state_Minh6splus

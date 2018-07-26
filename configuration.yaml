@@ -81,20 +81,23 @@ zone:
   - name: Home
     latitude: 10.24570625
     longitude: 106.375135
-    
     icon: mdi:home
+    passive: true
   - name: Work
     latitude: 10.2399084
     longitude: 106.3674902
-
-    
     icon: mdi:work
   - name: Nhà vợ
     latitude: 10.011966
     longitude: 105.768320
-
-    
     icon: mdi:home
+device_tracker:
+  - platform: owntracks
+    max_gps_accuracy: 200
+    waypoints: True
+    
+    events_only: True
+
 
 panel_custom:
   - name: floorplan
@@ -140,21 +143,8 @@ binary_sensor:
         
         platform: 'state'
         to_state: 'on'
-  - platform: template
-    sensors:
-      minhcombine:
-        friendly_name: "Minh"
-        device_class: presence
-        value_template: >-
-          {{ is_state('device_tracker.minh', 'home')
-             or is_state('device_tracker.homeassistant_25f1b431a7324dfbaab5efcff36de7ec', 'home') or is_state('device_tracker.90b0ed098564', 'home')}}
-  - platform: template
-    sensors:
-      thanhcombine:
-        friendly_name: "Thanh"
-        device_class: presence
-        value_template: >-
-          {{ is_state('device_tracker.thanh', 'home') or is_state('device_tracker.vo', 'home')}}
+
+
   
 sensor:
   - platform: template
@@ -245,26 +235,8 @@ sensor:
             Đã lặn
           {% endif %}
 
-  - platform: template
-    sensors:
-      device1:
-        friendly_name: "Thanh" 
-        value_template: >-
-          {% if is_state('device_tracker.thanh', 'home') %}
-            Đang ở nhà
-          {% elif is_state('device_tracker.thanh', 'not_home') %}
-            Đã ra ngoài
-          {% endif %}
-  - platform: template
-    sensors:
-      device:
-        friendly_name: "Minh" 
-        value_template: >-
-          {% if is_state('device_tracker.fcdbb3bdd3a2', 'home') %}
-            Đang ở nhà
-          {% elif is_state('device_tracker.fcdbb3bdd3a2', 'not_home') %}
-            Đã ra ngoài
-          {% endif %}
+
+
   - platform: mqtt
     name: test
     state_topic: "test"
@@ -419,15 +391,15 @@ group:
     view: yes
     icon: mdi:home-circle
     entities:
-      - group.device_tracker
-      
+
+      - device_tracker.homeassistant_8acc23f211c841ad9afb99fe317e7202
       - group.aircon
       - group.light
       - group.pc
 
       - group.time
       - group.water
-      
+      - zone.home
       - automation.tu_dong_bat_den_khi_troi_nong
       
       
@@ -445,14 +417,7 @@ group:
     view: no
     entities:
       - switch.boil
-  device_tracker:
-    name: Chủ nhân
-    view: no
-    entities:
-      - binary_sensor.minhcombine
-      - binary_sensor.thanhcombine
-      - binary_sensor.a_ngu_day
-      
+
   security1:
     name: An ninh
     view: yes
@@ -643,6 +608,9 @@ group:
       - automation.tu_ong_bat_en_phong_thay_o_ban_em
       - automation.thong_bao_qua_ifttt
       - automation.tu_ong_cap_nhat_nhiet_o_may_lanh
+      - automation.thong_bao_chuyen_donmg
+      - automation.thong_bao_minh_ve_nha
+      - automation.thong_bao_vi_tri_minh
   climateroomtab:
     name: Thông số trong nhà
     icon: mdi:home
@@ -718,19 +686,19 @@ switch:
     mac: '34:ea:34:9c:ed:ce'
     type: spmini2
     friendly_name: 'Desk Lamp'
-
+    scan_interval: 3
   - platform: broadlink
     host: 192.168.9.101
     mac: '78:0F:77:01:A3:24'
     type: spmini2
     friendly_name: 'Boil'
-  
+    scan_interval: 3
   - platform: broadlink
     host: 192.168.9.133
     mac: '78:0F:77:01:B3:A9'
     type: spmini2
     friendly_name: 'Loa_Harman'
-  
+    scan_interval: 3
   - platform: broadlink
     host: 192.168.9.115
     mac: '34:EA:34:D1:03:06'
@@ -757,7 +725,7 @@ switch:
     
 
 
-        
+
   - platform: mqtt
     name: Main Light 1
     command_topic: "relay/mainlight"
@@ -1257,35 +1225,10 @@ timer:
   kiemtramanhinh:
     duration: 60
 
-device_tracker:
-  
-  
-  - platform: nmap_tracker
-    hosts: 
-      - 192.168.9.128
-      - 192.168.9.105
 
-    track_new_devices: yes
-    interval_seconds: 60
-    consider_home: 300
-    
-    exclude:
-     - 192.168.9.103
-    
-  
-  - platform: ping
-    hosts:
-      Minh : 192.168.9.128
-      Vo: 192.168.9.105
-    interval_seconds: 60
-    consider_home: 300
-    track_new_devices: yes
   
   
-  
-  
-  - platform: owntracks
-    max_gps_accuracy: 200
+
 
     
     
@@ -1382,3 +1325,7 @@ input_text:
   nhac10:
     name: Link 10
     
+cast:
+  media_player:
+  - host: 192.168.9.109
+  - host: 192.168.9.107

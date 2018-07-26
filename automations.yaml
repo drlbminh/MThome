@@ -480,3 +480,57 @@
   action:
   - service: switch.turn_off
     entity_id: switch.main_speaker
+- id: '1531976569477'
+  alias: thong bao chuyen donmg
+  trigger:
+  - entity_id: binary_sensor.motion_sensor_158d0001b15e4a
+    from: 'off'
+    platform: state
+    to: 'on'
+  - entity_id: binary_sensor.motion_sensor_158d000223457f
+    from: 'off'
+    platform: state
+    to: 'on'
+  - entity_id: binary_sensor.motion_sensor_158d0001f4a9b6
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition: []
+  action:
+  - service: tts.google_say
+    entity_id: media_player.bedroom_speaker
+    data_template:
+      message: "Có chuyển động {% if trigger.to_state.attributes.friendly_name ==\
+        \ 'Motion Sensor_158d0001b15e4a' %} \n Cửa phòng khách\n{% elif trigger.to_state.attributes.friendly_name\
+        \ == 'Motion Sensor_158d000223457f' %}\n Cửa cuốn\n{% elif trigger.to_state.attributes.friendly_name\
+        \ == 'Motion Sensor_158d0001f4a9b6' %}\n Cửa sắt\n{% endif %}"
+      language: vi
+- id: '1532496876463'
+  alias: thong bao vi tri minh
+  trigger:
+  - entity_id: device_tracker.homeassistant_8acc23f211c841ad9afb99fe317e7202
+    from: home
+    platform: state
+    to: not_home
+  condition: []
+  action:
+  - service: tts.google_say
+    entity_id: media_player.bedroom_speaker
+    data:
+      message: 'My boss is leaving home'
+      language: en
+- id: '1532496979495'
+  alias: thong bao minh ve nha
+  trigger:
+  - entity_id: device_tracker.homeassistant_8acc23f211c841ad9afb99fe317e7202
+    from: not_home
+    platform: state
+    to: home
+  condition: []
+  action:
+  - data: {}
+    service: tts.google_say
+    entity_id: media_player.bedroom_speaker
+    data:
+      message: 'My boss is ariving home'
+      language: en
