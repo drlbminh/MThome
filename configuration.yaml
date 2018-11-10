@@ -1,6 +1,6 @@
 homeassistant:
   # Name of the location where Home Assistant is running
-  name: Nhà MT
+  name: Nhà MTTT
   # Location required to calculate the time the sun rises and sets
   latitude: 21.0333
   longitude: 105.85
