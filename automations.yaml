@@ -270,8 +270,8 @@
       message: Có chuyển động trong phòng MT
       data:
         renotify: 0
-        url: https://minhthanhhome.duckdns.org/api/camera_proxy/camera.camera_an_ninh?api_password=emilybro
-        image: https://minhthanhhome.duckdns.org/api/camera_proxy/camera.hinh_anh_tu_he_thong_an_ninh?api_password=emilybro
+        url: https://minhthanhhome.duckdns.org/
+        image: https://minhthanhhome.duckdns.org/
         vibrate:
         - 300
         - 100
